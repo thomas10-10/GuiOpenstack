@@ -6,8 +6,6 @@ import (
 	"path/filepath"
 	"os"
 	"io/ioutil"
-	"github.com/gophercloud/gophercloud"
-	"github.com/gophercloud/gophercloud/openstack"
 	//"github.com/gophercloud/gophercloud/openstack/utils"
 	"github.com/gophercloud/utils/openstack/clientconfig"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
@@ -55,20 +53,6 @@ func (a *App) Greet(name string) string {
 
 	fmt.Println("Home data directory:", xdg.DataHome)
 
-	opts := gophercloud.AuthOptions{
-		IdentityEndpoint: "https://identity.example.com/v3",
-		Username:         "votre_nom_utilisateur",
-		Password:         "votre_mot_de_passe",
-		TenantName:       "votre_tenant",
-		DomainName:       "votre_domaine",
-	}
-
-	client, err := openstack.AuthenticatedClient(opts)
-	if err != nil {
-		fmt.Println("Erreur lors de la création du client OpenStack:", err)
-	}
-	fmt.Println(client)
-	
 
 
 	return fmt.Sprintf("Hello %s, It's show time!", name)
@@ -104,30 +88,47 @@ type CustomServer struct {
     Name   string
     Status string
 }
+type Message struct {
+    Type     string
+    Level   string
+    Message string
+    Array []CustomServer
+}
 
-
-func (a *App) GetServers()  string{
+func (a *App) GetServers()  Message{
+		var customServers []CustomServer
 		cloudsFile := filepath.Join(xdg.DataHome, "GuiOpenstack.yaml")
 		fmt.Println(cloudsFile)
 		// Chemin vers le fichier clouds.yaml
 		os.Setenv("OS_CLIENT_CONFIG_FILE", cloudsFile)
+		os.Unsetenv("https_proxy")
+		os.Unsetenv("http_proxy")
+		fmt.Println(os.Getenv("http_proxy"), "oo" )
+		fmt.Println(os.Getenv("https_proxy"), "oo")
+		//os.Setenv("https_proxy", "")
+		//os.Setenv("http_proxy", "")
+		//os.Setenv("HTTPS_PROXY", "")
+		//os.Setenv("HTTP_PROXY", "")
+		//os.Setenv("no_proxy", "stargate-int.enedis.fr:13000")
+		//os.Setenv("NO_PROXY", "stargate-int.enedis.fr:13000")
 
+
+		
 		opts := new(clientconfig.ClientOpts)
-		opts.Cloud = "openstack"
-
+		opts.Cloud = "stargate-int"
+		//TO-DO  FAIRE PROXY INDEPENDAMENT DU CLUSTER
 //		provider, err := clientconfig.AuthenticatedClient(opts)
-			fmt.Println("fffffffff")
-		computeClient, err := clientconfig.NewServiceClient("compute", opts)
+		fmt.Println("fffffffff")
 
-		fmt.Println(err)
+		computeClient, err := clientconfig.NewServiceClient("compute", opts)
+		if err != nil{
+			fmt.Println(err)
+			return Message{Type: "Message", Level: "Error", Message: fmt.Sprint(err), Array: []CustomServer{} }
+		}
 	
 
-
-
-
-
 		listOpts := servers.ListOpts{
-			AllTenants: false,
+			AllTenants: true,
 		}
 		
 		allPages, err := servers.List(computeClient, listOpts).AllPages()
@@ -141,11 +142,18 @@ func (a *App) GetServers()  string{
 		}
 		
 		for _, server := range allServers {
+
+			customServers = append(customServers, CustomServer{
+				ID:   server.ID,
+				Name: server.Name,
+    			Status: server.Status,
+				// Ajoutez d'autres champs du serveur que vous souhaitez inclure
+			})
 			fmt.Println("%+v\n", server)
 		}
 	
 		
-		return ""
+		return Message{Type: "CustomServer", Level: "Info", Message: "", Array: customServers }
 
 	
 }

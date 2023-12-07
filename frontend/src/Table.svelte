@@ -13,6 +13,13 @@
 					</tr>
 				</thead>
 				<tbody class="">
+					{#each arrayTR as trs, index}
+						<tr>
+						    {#each Object.keys(trs) as key}
+      						<td>{trs[key]}</td>
+							{/each}
+						</tr>
+					{/each}
 					<tr>
 						<td>Tiger Nixon</td>
 						<td>System Architect</td>
@@ -35,12 +42,16 @@
 				</tbody>
 
 			</table>
+			<div id="example"></div>
+
 
 
 	<script>
+	export let arrayTR=[];
 	import jQuery from 'jquery';
 	import 'datatables.net';
-
+	import Handsontable from 'handsontable';
+    import 'handsontable/dist/handsontable.full.min.css';
 jQuery(document).ready(function () {
     // Setup - add a text input to each footer cell
     jQuery('#example thead tr')
