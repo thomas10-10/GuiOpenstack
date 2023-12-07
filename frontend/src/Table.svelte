@@ -1,0 +1,200 @@
+
+
+
+			<table id="example" class="stripe hover table table-xs" style="width:100%; height: 100%;">
+				<thead class="">
+					<tr>
+						<th data-priority="1">Name</th>
+						<th data-priority="2">Position</th>
+						<th data-priority="3">Office</th>
+						<th data-priority="4">Age</th>
+						<th data-priority="5">Start date</th>
+						<th data-priority="6">Salary</th>
+					</tr>
+				</thead>
+				<tbody class="">
+					<tr>
+						<td>Tiger Nixon</td>
+						<td>System Architect</td>
+						<td>Edinburgh</td>
+						<td>61</td>
+						<td>2011/04/25</td>
+						<td>jQuery320,800</td>
+					</tr>
+
+					<!-- Rest of your data (refer to https://datatables.net/examples/server_side/ for server side processing)-->
+
+					<tr>
+						<td>Donna Snider</td>
+						<td>Customer Support</td>
+						<td>New York</td>
+						<td>27</td>
+						<td>2011/01/25</td>
+						<td>jQuery112,000</td>
+					</tr>
+				</tbody>
+
+			</table>
+
+
+	<script>
+	import jQuery from 'jquery';
+	import 'datatables.net';
+
+jQuery(document).ready(function () {
+    // Setup - add a text input to each footer cell
+    jQuery('#example thead tr')
+        .clone(true)
+        .addClass('filters')
+        .appendTo('#example thead');
+ 
+    var table = jQuery('#example').DataTable({
+        orderCellsTop: true,
+        fixedHeader: true,
+        initComplete: function () {
+            var api = this.api();
+ 
+            // For each column
+            api
+                .columns()
+                .eq(0)
+                .each(function (colIdx) {
+                    // Set the header cell to contain the input element
+                    var cell = jQuery('.filters th').eq(
+                        jQuery(api.column(colIdx).header()).index()
+                    );
+                    var title = jQuery(cell).text();
+                    jQuery(cell).html('<input type="search" class= "border-b border-gray-300 py-1 focus:border-b-2 focus:border-blue-700 transition-colors focus:outline-none peer bg-inherit" placeholder="' + title + '" />');
+ 
+                    // On every keypress in this input
+                    jQuery(
+                        'input',
+                        jQuery('.filters th').eq(jQuery(api.column(colIdx).header()).index())
+                    )
+                        .off('keyup change')
+                        .on('change', function (e) {
+                            // Get the search value
+                            jQuery(this).attr('title', jQuery(this).val());
+                            var regexr = '({search})'; //jQuery(this).parents('th').find('select').val();
+ 
+                            var cursorPosition = this.selectionStart;
+                            // Search the column for that value
+                            api
+                                .column(colIdx)
+                                .search(
+                                    this.value != ''
+                                        ? regexr.replace('{search}', '(((' + this.value + ')))')
+                                        : '',
+                                    this.value != '',
+                                    this.value == ''
+                                )
+                                .draw();
+                        })
+                        .on('keyup', function (e) {
+                            e.stopPropagation();
+ 
+                            jQuery(this).trigger('change');
+                            jQuery(this)
+                                .focus()[0]
+                                .setSelectionRange(cursorPosition, cursorPosition);
+                        });
+                });
+        },
+    });
+});
+
+	</script>
+
+<style>
+
+		/*Overrides for Tailwind CSS */
+
+		/*Form fields*/
+		.dataTables_wrapper select,
+		.dataTables_wrapper .dataTables_filter input {
+			color: #4a5568;
+			/*text-gray-700*/
+			padding-left: 1rem;
+			/*pl-4*/
+			padding-right: 1rem;
+			/*pl-4*/
+			padding-top: .5rem;
+			/*pl-2*/
+			padding-bottom: .5rem;
+			/*pl-2*/
+			line-height: 1.25;
+			/*leading-tight*/
+			border-width: 2px;
+			/*border-2*/
+			border-radius: .25rem;
+			border-color: #edf2f7;
+			/*border-gray-200*/
+			background-color: #edf2f7;
+			/*bg-gray-200*/
+		}
+
+		/*Row Hover*/
+		table.dataTable.hover tbody tr:hover,
+		table.dataTable.display tbody tr:hover {
+			background-color: #ebf4ff;
+			/*bg-indigo-100*/
+		}
+
+		/*Pagination Buttons*/
+		.dataTables_wrapper .dataTables_paginate .paginate_button {
+			font-weight: 700;
+			/*font-bold*/
+			border-radius: .25rem;
+			/*rounded*/
+			border: 1px solid transparent;
+			/*border border-transparent*/
+		}
+
+		/*Pagination Buttons - Current selected */
+		.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+			color: #fff !important;
+			/*text-white*/
+			box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .1), 0 1px 2px 0 rgba(0, 0, 0, .06);
+			/*shadow*/
+			font-weight: 700;
+			/*font-bold*/
+			border-radius: .25rem;
+			/*rounded*/
+			background: #667eea !important;
+			/*bg-indigo-500*/
+			border: 1px solid transparent;
+			/*border border-transparent*/
+		}
+
+		/*Pagination Buttons - Hover */
+		.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+			color: #fff !important;
+			/*text-white*/
+			box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .1), 0 1px 2px 0 rgba(0, 0, 0, .06);
+			/*shadow*/
+			font-weight: 700;
+			/*font-bold*/
+			border-radius: .25rem;
+			/*rounded*/
+			background: #667eea !important;
+			/*bg-indigo-500*/
+			border: 1px solid transparent;
+			/*border border-transparent*/
+		}
+
+		/*Add padding to bottom border */
+		table.dataTable.no-footer {
+			border-bottom: 1px solid #e2e8f0;
+			/*border-b-1 border-gray-300*/
+			margin-top: 0.75em;
+			margin-bottom: 0.75em;
+		}
+
+		/*Change colour of responsive icon*/
+		table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before,
+		table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
+			background-color: #667eea !important;
+			/*bg-indigo-500*/
+		}
+
+</style>

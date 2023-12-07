@@ -1,0 +1,23 @@
+{
+  "name": "testsvelte",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^2.4.5",
+    "autoprefixer": "^10.4.15",
+    "daisyui": "^4.4.19",
+    "datatables.net": "^1.10.5",
+    "jquery": "^3.7.1",
+    "jquery.dataTables.min.js": "^1.10.5",
+    "postcss": "^8.4.32",
+    "svelte": "^4.2.0",
+    "tailwindcss": "^3.3.3",
+    "vite": "^4.4.9"
+  },
+  "author": ""
+}
