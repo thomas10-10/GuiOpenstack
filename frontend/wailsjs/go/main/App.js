@@ -14,8 +14,18 @@ export function Writeconf(arg1) {
   return window['go']['main']['App']['Writeconf'](arg1);
 }
 
-
-export function GetServers() {
-  return window['go']['main']['App']['GetServers']();
+export function GetCloudNames() {
+  return window['go']['main']['App']['GetCloudNames']();
 }
 
+export function GetServers(arg1) {
+  return window['go']['main']['App']['GetServers'](arg1);
+}
+
+export function GreetAsyncViaEvent(){
+  return window['go']['main']['App']['GreetAsyncViaEvent']();
+}
+
+export function AsyncGetServersViaEvent(arg1){
+  return window['go']['main']['App']['AsyncGetServersViaEvent'](arg1);
+}

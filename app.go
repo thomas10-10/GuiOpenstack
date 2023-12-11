@@ -4,8 +4,11 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"os"
 	"io/ioutil"
+	"log"
+	"time"
 	//"github.com/gophercloud/gophercloud/openstack/utils"
 	"github.com/gophercloud/utils/openstack/clientconfig"
 	"github.com/gophercloud/gophercloud/openstack/compute/v2/servers"
@@ -84,7 +87,8 @@ func (a *App) Writeconf(content string)  {
 }
 
 type CustomServer struct {
-    ID     string
+	Cloud  string
+    Id     string
     Name   string
     Status string
 }
@@ -94,8 +98,36 @@ type Message struct {
     Message string
     Array []CustomServer
 }
+type MessageCloudNames struct {
+    Type    string
+    Level   string
+    Message string
+    Array []string
+}
+func (a *App) GetCloudNames()  MessageCloudNames{
 
-func (a *App) GetServers()  Message{
+		var cloudNames []string
+		cloudsFile := filepath.Join(xdg.DataHome, "GuiOpenstack.yaml")
+		os.Setenv("OS_CLIENT_CONFIG_FILE", cloudsFile)
+    	clouds, err := clientconfig.LoadCloudsYAML()
+    	if err != nil {
+     	   fmt.Println(err)
+       	 	return MessageCloudNames{Type: "Message", Level: "ERROR", Message: fmt.Sprint(err), Array: []string{}}
+    	}
+
+    for cloudName := range clouds {
+        cloudNames = append(cloudNames, cloudName)
+    }
+
+    return MessageCloudNames{Type: "Message", Level: "INFO", Message: fmt.Sprint(err), Array: cloudNames}
+
+
+
+}
+
+
+func getServers(cloudName string)  Message{
+
 		var customServers []CustomServer
 		cloudsFile := filepath.Join(xdg.DataHome, "GuiOpenstack.yaml")
 		fmt.Println(cloudsFile)
@@ -105,17 +137,13 @@ func (a *App) GetServers()  Message{
 		os.Unsetenv("http_proxy")
 		fmt.Println(os.Getenv("http_proxy"), "oo" )
 		fmt.Println(os.Getenv("https_proxy"), "oo")
-		//os.Setenv("https_proxy", "")
-		//os.Setenv("http_proxy", "")
-		//os.Setenv("HTTPS_PROXY", "")
-		//os.Setenv("HTTP_PROXY", "")
 		//os.Setenv("no_proxy", "stargate-int.enedis.fr:13000")
 		//os.Setenv("NO_PROXY", "stargate-int.enedis.fr:13000")
 
 
-		
+
 		opts := new(clientconfig.ClientOpts)
-		opts.Cloud = "stargate-int"
+		opts.Cloud = cloudName
 		//TO-DO  FAIRE PROXY INDEPENDAMENT DU CLUSTER
 //		provider, err := clientconfig.AuthenticatedClient(opts)
 		fmt.Println("fffffffff")
@@ -141,19 +169,60 @@ func (a *App) GetServers()  Message{
 			fmt.Println(err)
 		}
 		
+		fmt.Println(allServers[0])
 		for _, server := range allServers {
 
 			customServers = append(customServers, CustomServer{
-				ID:   server.ID,
+				Id:   server.ID,
 				Name: server.Name,
     			Status: server.Status,
+				Cloud: cloudName,
 				// Ajoutez d'autres champs du serveur que vous souhaitez inclure
 			})
-			fmt.Println("%+v\n", server)
 		}
 	
 		
 		return Message{Type: "CustomServer", Level: "Info", Message: "", Array: customServers }
 
-	
 }
+
+
+
+func (a *App) GetServers(cloudName string)  Message{
+	return getServers(cloudName)
+}
+
+
+
+func (a *App) AsyncGetServersViaEvent(cloudName string) {
+	go func() {
+			runtime.EventsEmit(a.ctx, "rcv:updateStateRequestGetServers",[]interface{}{cloudName, "begin"} )
+			log.Println("debut ",cloudName)
+			var result=getServers(cloudName)
+			if (result.Level == "Error"){
+			log.Println("ERROR",cloudName, result.Message)
+			runtime.EventsEmit(a.ctx, "rcv:updateStateRequestGetServers",[]interface{}{cloudName, "error"} )
+			runtime.EventsEmit(a.ctx, "rcv:displayError",[]interface{}{cloudName, result.Message}  )
+			}
+			if (result.Level == "Info"){
+			runtime.EventsEmit(a.ctx, "rcv:getServers",result.Array)
+			runtime.EventsEmit(a.ctx, "rcv:updateStateRequestGetServers",[]interface{}{cloudName, "okey"} )
+			}
+			log.Println("fin ",cloudName)
+			
+	}()
+}
+
+
+
+func (a *App) GreetAsyncViaEvent() {
+	go func() {
+		for _, m := range []string{"Hello A (from server)", "Hello B (from server)", "Hello C (from server)", "DONE"} {
+			runtime.EventsEmit(a.ctx, "rcv:greet", m)
+			log.Println(m)
+			time.Sleep(1 * time.Second)
+		}
+	}()
+}
+
+
