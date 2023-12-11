@@ -1,0 +1,70 @@
+
+func (a *App) GetAllServers() []Message {
+    // Chemin vers le fichier clouds.yaml
+    cloudsFile := filepath.Join(xdg.DataHome, "GuiOpenstack.yaml")
+		os.Setenv("OS_CLIENT_CONFIG_FILE", cloudsFile)
+    // Charger la configuration des clouds depuis le fichier
+    clouds, err := clientconfig.LoadCloudsYAML()
+    if err != nil {
+        fmt.Println(err)
+        return []Message{Message{Type: "Message", Level: "Error", Message: fmt.Sprint(err), Array: []CustomServer{}}}
+    }
+
+    var allMessages []Message
+
+    // Iterer sur la liste des clouds
+    for cloudName, cloud := range clouds {
+        // Appeler GetServers pour chaque cloud
+        message := a.GetServersFromCloud(cloudName, cloud)
+        allMessages = append(allMessages, message)
+    }
+
+    return allMessages
+}
+
+func (a *App) GetServersFromCloud(cloudName string, cloud *clientconfig.Cloud) Message {
+    var customServers []CustomServer
+
+    // Configurer les options pour le client
+    opts := &clientconfig.ClientOpts{
+        Cloud: cloudName,
+    }
+
+    // Créer le client OpenStack
+    computeClient, err := clientconfig.NewServiceClient("compute", opts)
+    if err != nil {
+        fmt.Println(err)
+        return Message{Type: "Message", Level: "Error", Message: fmt.Sprint(err), Array: []CustomServer{}}
+    }
+
+    // Récupérer la liste des serveurs
+    listOpts := servers.ListOpts{
+        AllTenants: true,
+    }
+
+    allPages, err := servers.List(computeClient, listOpts).AllPages()
+    if err != nil {
+        fmt.Println(err)
+        return Message{Type: "Message", Level: "Error", Message: fmt.Sprint(err), Array: []CustomServer{}}
+    }
+
+    allServers, err := servers.ExtractServers(allPages)
+    if err != nil {
+        fmt.Println(err)
+        return Message{Type: "Message", Level: "Error", Message: fmt.Sprint(err), Array: []CustomServer{}}
+    }
+
+    // Construire la liste de CustomServer
+    for _, server := range allServers {
+        customServers = append(customServers, CustomServer{
+            ID:     server.ID,
+            Name:   server.Name,
+            Status: server.Status,
+        })
+        fmt.Printf("%+v\n", server)
+    }
+
+    // Retourner le message pour ce cloud spécifique
+    return Message{Type: "CustomServer", Level: "Info", Message: "", Array: customServers}
+}
+
