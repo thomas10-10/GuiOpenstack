@@ -14,7 +14,9 @@
     "daisyui": "^4.4.19",
     "datatables.net": "^1.10.5",
     "filtrex": "^3.0.0",
-    "gridjs": "^6.0.6",
+    "flowbite": "^2.2.0",
+    "flowbite-svelte": "^0.44.20",
+    "gridjs": "^5.1.0",
     "handsontable": "^14.0.0",
     "jquery": "^3.7.1",
     "jquery.dataTables.min.js": "^1.10.5",
@@ -24,5 +26,8 @@
     "tailwindcss": "^3.3.3",
     "vite": "^4.4.9"
   },
-  "author": ""
+  "author": "",
+  "dependencies": {
+    "@revolist/svelte-datagrid": "^3.2.16"
+  }
 }

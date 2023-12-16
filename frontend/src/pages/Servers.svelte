@@ -7,6 +7,11 @@
   //import HTable from '../HandsonTable.svelte'
   import alasql from 'alasql';
   import { compileExpression } from 'filtrex';
+  import { h, html } from "gridjs"
+
+import Grid from "gridjs-svelte"
+import { RowSelection }  from "gridjs/plugins/selection"
+import "gridjs/dist/theme/mermaid.css";
 
 
 import {
@@ -106,6 +111,15 @@ import {
       }else{
         response["cloudNames"]=result["Array"];
         console.log("get list clouds "+response["cloudNames"])
+        cloudNames=[]
+        cloudNames=response["cloudNames"]
+        cloudNamesDict=[{"select":false,"cloud":"debug"}]
+        cloudNames.forEach((element) =>{
+          console.log("gggggggggggggg",element)
+          cloudNamesDict = cloudNamesDict.concat({"select":false ,"cloud":element});
+          //cloudNamesDict.push({"cloud": element})
+        });
+        
       } 
     });
     return response
@@ -117,6 +131,7 @@ import {
   let errors=[] 
   let error="" 
   let cloudNames=[]
+  let cloudNamesDict=[{"select":false, "cloud":"debug"}]
   
   
   cloudNames=getCloudNames()["cloudNames"]
@@ -176,10 +191,22 @@ cloudNames=getCloudNames()["cloudNames"]
 //getservers("stargate-int")
 //processClouds()
 
+import { RevoGrid } from "@revolist/svelte-datagrid";
+import {defineCustomElements} from '@revolist/revogrid/loader';
 
+let source = [{
+      prop: "name",
+      name: "First",
+    },
+    {
+      prop: "details",
+      name: "Second",
+}];
+let columns = [{
+    name: "1ffff",
+    details: "Item 1",
+}];
 
-import Grid from "gridjs-svelte"
-import "gridjs/dist/theme/mermaid.css";
 
 let data2 = [
     { name: "John", email: "john@example.com" },
@@ -188,7 +215,33 @@ let data2 = [
 const className= {
     table: 'stripe hover table table-xs'
   }
-const columns=['ID']
+const columnso=[{
+  id: "myCheckbox",
+  name: "select",
+  formatter: (cell,row) =>{ 
+  return h(
+    "input",
+    {
+      checked: "${row.cells[0].data}",
+      type: "checkbox",
+      onClick: () => {
+				alert(`See the detail on ${row.cells[1].data}`)
+				cloudNamesDict=[{"select":false,"cloud":"koko"}]						 
+		}
+
+    }
+  )
+  },
+  plugin: {
+  //  component: RowSelection,
+  }
+},"cloud"]
+
+function log(...args){
+  console.log(...args)
+}
+
+
 let pagination= {
     limit: 20,
     summary: true
@@ -247,24 +300,40 @@ view=alasql(filters,[config])
 
 
 <div class="p-4 sm:ml-64">
-
+  <RevoGrid  resize="true" {columns} theme="material"/>
   <div class="join join-vertical lg:join-horizontal">
-    <button class="btn join-item"><span>{@html iconCloud}</span>Select Clouds</button>
-    <button class="btn join-item">{@html iconPlay} GET
+    <button class="btn join-item"  onclick="my_modal_4.showModal()" ><span>{@html iconCloud}</span>Select Clouds</button>
+    <dialog id="my_modal_4" class="modal">
+      <div class="modal-box">
+        <form method="dialog">
+          <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+        </form>
+        <h3 class="font-bold text-lg">Hello!</h3>
+        <p class="py-4">Press ESC key or click on ✕ button to close</p>
+        <Grid  data={cloudNamesDict} on:rowClick={log} columns={columnso} search=true    className={className} pagination={pagination} fixedHeader=true sort=true   />
+      </div>
+    </dialog>
 
-      <span class=" badge badge-primary">last: 2019-12-15:00:00:00</span> 
 
-    </button>
-    <button class="btn join-item">Button</button>
+
+
+
+
+  <div class="dropdown dropdown-hover join-item">
+    <div tabindex="0" role="button" class="btn join-item">
+        {@html iconPlay} GET<span class=" badge badge-primary">last: 2019-12-15:00:00:00</span> 
+    </div>
+    <div tabindex="0" class="dropdown-content z-[1]  shadow bg-base-100 rounded-box w-52">
+      <div>sssssssssss</div>
+      <div>sssssssssss</div>
+    </div>
   </div>
 
 
-<div class=""> 
-  <span class=w-full>
-  <button class="">tttt</button>
-  <button class="">tttt</button>
-  </span>
-</div>
+  </div>
+
+
+
 
   <div   class=" join flex  p-2  cursor-pointer rounded-lg  group"  >
  <button class="btn join-item  btn-sm w-1  ">
@@ -272,17 +341,30 @@ view=alasql(filters,[config])
     </button>
 
 
-    <div class="indicator">
-      <span class="indicator-item badge badge-error">error</span> 
-  <select class="select select-bordered join-item select-sm border-error">
-      <option class="" selected>SQL
 
-      </option>
-     <!--  <option disabled>jsonpath</option> -->
-    </select>
+  <div class="dropdown dropdown-hover join-item">
+    <div tabindex="0" role="button" class="">
+      <div class="indicator">
+        <span class="indicator-item badge badge-error">error</span> 
+        <select class="select select-bordered join-item select-sm border-error">
+          <option class="" selected>SQL</option>
+          <!--  <option disabled>jsonpath</option> -->
+        </select>
+      </div>    
+    </div>
+    <div tabindex="0" class="dropdown-content z-[1]  shadow bg-base-100 rounded-box w-52">
+      <div>sssssssssss</div>
+    </div>
+  </div>
 
-    </div>    
-        <textarea class="input input-bordered join-item input-sm w-full" placeholder="Select * from ?"/>
+
+
+
+
+
+    
+    
+    <textarea class="input input-bordered join-item input-sm w-full" placeholder="Select * from ?"/>
 
 <button class="btn join-item btn-sm"></button>
   </div>
