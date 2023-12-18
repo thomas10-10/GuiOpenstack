@@ -9,6 +9,7 @@
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.4.5",
+    "@vincjo/datatables": "^1.14.1",
     "alasql": "^4.2.3",
     "autoprefixer": "^10.4.15",
     "daisyui": "^4.4.19",

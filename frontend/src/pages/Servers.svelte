@@ -4,6 +4,7 @@
   import {EventsOn, EventsOff } from "../../wailsjs/runtime/runtime";
   import { onMount } from 'svelte';
   import Table from '../Table.svelte';
+  import SvelteTable from '../SvelteTable.svelte';
   //import HTable from '../HandsonTable.svelte'
   import alasql from 'alasql';
   import { compileExpression } from 'filtrex';
@@ -228,33 +229,26 @@ function deselectAllClouds(){
   console.log(cloudNamesDict)
 }
 
-
+let aa=true;
 
 let columnso=[
 {
   sort: 0,
   width: "15%",
   id: "select",
-  name: h('input', {
-        type: "checkbox",
-        checked: selectAllcloud,
-	   			onClick: function(event) {
-            if(event.target.checked ){
-              console.log("remove")
-              event.target.checked= false
-              selectAllcloud=false;         
-            }else{
-              console.log("add")
-              event.target.checked= true
-              selectAllcloud=true;       
-            }
-            columnso=columnso
-	  },
-        }
-      ),
+  //name: h('input', {
+  //      id: "selectAllCloud",
+  //      type: "checkbox",
+  //      checked: selectAllcloud ,
+	 //  			onChange: () => {
+  //          selectAllcloud=!selectAllcloud
+  //          
+	 // },
+  //      }
+  //    ),
 
 
-//  name: html(`input type="checkbox" onchange="() => this.checked ? console.log('ok') : console.log('nok') ;   "   />`),
+ name: html('<a onclick="() => ;">v</a> <a>x</a> '),
  // formatter: (cell,row) => {
  //   let getCloud=cloudNamesDict.find(objet => objet.cloud === row.cells[1].data)
  //   return html(`<input type="checkbox" checked=${getCloud.select} onChange="() => console.log(cloudNamesDict);getCloud.select=!getCloud.select"  />`)
@@ -265,10 +259,12 @@ let columnso=[
           type: "checkbox",
           checked: getCloud.select,
 	   			onChange: () => {
+            aa=false
             getCloud.select=!getCloud.select
             //this.checked=cell
 	      		console.log(cloudNamesDict)
-            cloudNamesDict=cloudNamesDict
+            columnso=columnso
+            //cloudNamesDict=cloudNamesDict
 	  }
 		},)
   }
@@ -352,6 +348,7 @@ view=alasql(filters,[config])
 
 
 <div class="p-4 sm:ml-64">
+  <SvelteTable data={cloudNamesDict} />
   <RevoGrid  resize="true" {columns} theme="material"/>
   <div class="join join-vertical lg:join-horizontal">
     <button class="btn join-item"  onclick="my_modal_4.showModal()" ><span>{@html iconCloud}</span>Select Clouds</button>
@@ -362,7 +359,7 @@ view=alasql(filters,[config])
         </form>
         <h3 class="font-bold text-lg">Hello!</h3>
         <p class="py-4">Press ESC key or click on ✕ button to close</p>
-        <Grid  data={cloudNamesDict}  columns={columnso} search=true    className={className} pagination={pagination} fixedHeader=true    />
+        <Grid  data={cloudNamesDict} columns={columnso} search=true    className={className} pagination={pagination} fixedHeader=true    />
       </div>
     </dialog>
 
