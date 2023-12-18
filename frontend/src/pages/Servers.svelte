@@ -13,7 +13,7 @@ import Grid from "gridjs-svelte"
 import { RowSelection }  from "gridjs/plugins/selection"
 import "gridjs/dist/theme/mermaid.css";
 
-
+let selectAllcloud=true;
 import {
   filter,
   highlight,
@@ -113,10 +113,10 @@ import {
         console.log("get list clouds "+response["cloudNames"])
         cloudNames=[]
         cloudNames=response["cloudNames"]
-        cloudNamesDict=[{"select":false,"cloud":"debug"}]
+        cloudNamesDict=[]
         cloudNames.forEach((element) =>{
           console.log("gggggggggggggg",element)
-          cloudNamesDict = cloudNamesDict.concat({"select":false ,"cloud":element});
+          cloudNamesDict = cloudNamesDict.concat({"select":true ,"cloud":element});
           //cloudNamesDict.push({"cloud": element})
         });
         
@@ -131,7 +131,7 @@ import {
   let errors=[] 
   let error="" 
   let cloudNames=[]
-  let cloudNamesDict=[{"select":false, "cloud":"debug"}]
+  let cloudNamesDict=[]
   
   
   cloudNames=getCloudNames()["cloudNames"]
@@ -206,7 +206,7 @@ let columns = [{
     name: "1ffff",
     details: "Item 1",
 }];
-
+let i=0
 
 let data2 = [
     { name: "John", email: "john@example.com" },
@@ -215,27 +215,79 @@ let data2 = [
 const className= {
     table: 'stripe hover table table-xs'
   }
-const columnso=[{
-  id: "myCheckbox",
-  name: "select",
-  formatter: (cell,row) =>{ 
-  return h(
-    "input",
-    {
-      checked: "${row.cells[0].data}",
-      type: "checkbox",
-      onClick: () => {
-				alert(`See the detail on ${row.cells[1].data}`)
-				cloudNamesDict=[{"select":false,"cloud":"koko"}]						 
-		}
 
-    }
-  )
-  },
-  plugin: {
-  //  component: RowSelection,
+
+function selectAllClouds(){
+  cloudNamesDict.forEach((element) => element.select=true    );
+  selectAllcloud=true
+  //cloudNamesDict=cloudNamesDict
+}
+function deselectAllClouds(){
+  cloudNamesDict.forEach((element) => element.select=false    );
+  //cloudNamesDict=cloudNamesDict
+  console.log(cloudNamesDict)
+}
+
+
+
+let columnso=[
+{
+  sort: 0,
+  width: "15%",
+  id: "select",
+  name: h('input', {
+        type: "checkbox",
+        checked: selectAllcloud,
+	   			onClick: function(event) {
+            if(event.target.checked ){
+              console.log("remove")
+              event.target.checked= false
+              selectAllcloud=false;         
+            }else{
+              console.log("add")
+              event.target.checked= true
+              selectAllcloud=true;       
+            }
+            columnso=columnso
+	  },
+        }
+      ),
+
+
+//  name: html(`input type="checkbox" onchange="() => this.checked ? console.log('ok') : console.log('nok') ;   "   />`),
+ // formatter: (cell,row) => {
+ //   let getCloud=cloudNamesDict.find(objet => objet.cloud === row.cells[1].data)
+ //   return html(`<input type="checkbox" checked=${getCloud.select} onChange="() => console.log(cloudNamesDict);getCloud.select=!getCloud.select"  />`)
+ // }   
+  formatter: (cell, row, index) => {
+    let getCloud=cloudNamesDict.find(objet => objet.cloud === row.cells[2].data)
+    return h('input', {
+          type: "checkbox",
+          checked: getCloud.select,
+	   			onChange: () => {
+            getCloud.select=!getCloud.select
+            //this.checked=cell
+	      		console.log(cloudNamesDict)
+            cloudNamesDict=cloudNamesDict
+	  }
+		},)
   }
-},"cloud"]
+}
+,{
+
+  sort: 1,
+  name: "select", 
+
+  formatter: (cell, row, index) => {
+    return cell.toString()
+  }
+},
+
+,{
+  sort: 1,
+  name: "cloud"}
+]
+      
 
 function log(...args){
   console.log(...args)
@@ -310,7 +362,7 @@ view=alasql(filters,[config])
         </form>
         <h3 class="font-bold text-lg">Hello!</h3>
         <p class="py-4">Press ESC key or click on ✕ button to close</p>
-        <Grid  data={cloudNamesDict} on:rowClick={log} columns={columnso} search=true    className={className} pagination={pagination} fixedHeader=true sort=true   />
+        <Grid  data={cloudNamesDict}  columns={columnso} search=true    className={className} pagination={pagination} fixedHeader=true    />
       </div>
     </dialog>
 
