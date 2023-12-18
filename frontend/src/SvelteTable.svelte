@@ -4,6 +4,24 @@
   import { DataHandler, check, Datatable, Th, ThFilter } from '@vincjo/datatables'
   import { onMount } from 'svelte'
 
+
+ function setGeneralCheckbox(){
+  let countSelectedTrue = data.filter(item => item.select === true).length;
+  console.log(data.length,countSelectedTrue)
+  if (countSelectedTrue == data.length){
+  document.getElementById("my-checkbox").indeterminate = false
+  document.getElementById("my-checkbox").checked = true
+  }else if(countSelectedTrue == 0 ){
+  document.getElementById("my-checkbox").indeterminate = false
+  document.getElementById("my-checkbox").checked = false
+  }else{
+  document.getElementById("my-checkbox").indeterminate = true
+  document.getElementById("my-checkbox").checked = false
+  }
+ } 
+
+
+
   const handler = new DataHandler(data, { rowsPerPage: 50 })
   handler.initializeSelection = () => {
   data.forEach((row) => {
@@ -14,6 +32,7 @@
     }
   });
 };
+let aaa=false
   $: {
   data, handler.setRows(data)
   }
@@ -26,8 +45,11 @@
   onMount(() => {
     handler.initializeSelection();
   handler.selectAll({ selectBy: 'cloud' })
+  setGeneralCheckbox()
     //
   });
+  let selectFilter="all";
+  handler.filter(selectFilter, 'select', check.isEqualTo)
 </script>
 
 <Datatable {handler}>
@@ -35,27 +57,40 @@
       <thead>
           <tr>
               <Th {handler} class="selection" orderBy="select" >
-                  <input
-                      type="checkbox"
+                <input type="checkbox" class="" id="my-checkbox" 
                       on:click={(event) => {
-                        handler.selectAll({ selectBy: 'cloud' })
+                        //handler.selectAll({ selectBy: 'cloud' })
                         if (event.target.checked){
-                          console.log("fug")
+                          //console.log("fug")
                           data.forEach((element) => element.select=true)
-                          console.log(data)
+                          setGeneralCheckbox()
+                          //console.log(data)
                         }else{
-
                           data.forEach((element) => element.select=false)
-                        } 
-                      }}
-                      checked={$isAllSelected}
-                      
-                  />
+                          setGeneralCheckbox()
+                        }}}
+                
+                
+                />
+                 
               </Th>
               <Th {handler} orderBy="cloud">cloud</Th>
           </tr>
           <tr>
-              <ThFilter {handler} filterBy="select" class="selection" />
+             <!-- <ThFilter {handler} filterBy="select" comparator={check.isEqualTo} class="selection" /> -->
+             <th class="text-left">
+              <select
+               on:change={(event) => {
+                        //handler.selectAll({ selectBy: 'cloud' })
+                        //selectFilter=false
+                        
+                        }}
+              class="select select-xs" bind:value={selectFilter}>
+                <option selected>all</option>
+                <option>true</option>
+                <option>false</option>
+              </select>
+            </th>
              <!-- <ThFilter {handler} filterBy="id" comparator={check.isEqualTo} /> -->
               <ThFilter {handler} filterBy="cloud" />
           </tr>
@@ -63,19 +98,19 @@
       <tbody>
           {#each $rows as row}
               <tr class:active={$selected.includes(row.cloud)}>
-                  <td class="selection">
+                  <td class="selection text-left">
                       <input
                           type="checkbox"
                           id={row.cloud}
                           on:click={() => {
-
                             handler.select(row.cloud)
                             let selected=data.find(objet => objet.cloud === row.cloud)
                             //document.getElementById(row.cloud).checked=row.select
                             selected.select=!selected.select
                             console.log(data)
+                            setGeneralCheckbox()
                           }}
-                          checked={$selected.includes(row.cloud)}
+                          bind:checked={row.select}
 
                       />
                   </td>
