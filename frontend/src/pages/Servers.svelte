@@ -4,7 +4,7 @@
   import {EventsOn, EventsOff } from "../../wailsjs/runtime/runtime";
   import { onMount } from 'svelte';
   import Table from '../Table.svelte';
-  import SvelteTable from '../SvelteTable.svelte';
+  import CloudsTable from './tables/CloudsTable.svelte';
   //import HTable from '../HandsonTable.svelte'
   import alasql from 'alasql';
   import { compileExpression } from 'filtrex';
@@ -231,59 +231,7 @@ function deselectAllClouds(){
 
 let aa=true;
 
-let columnso=[
-{
-  sort: 0,
-  width: "15%",
-  id: "select",
-  //name: h('input', {
-  //      id: "selectAllCloud",
-  //      type: "checkbox",
-  //      checked: selectAllcloud ,
-	 //  			onChange: () => {
-  //          selectAllcloud=!selectAllcloud
-  //          
-	 // },
-  //      }
-  //    ),
-
-
- name: html('<a onclick="() => ;">v</a> <a>x</a> '),
- // formatter: (cell,row) => {
- //   let getCloud=cloudNamesDict.find(objet => objet.cloud === row.cells[1].data)
- //   return html(`<input type="checkbox" checked=${getCloud.select} onChange="() => console.log(cloudNamesDict);getCloud.select=!getCloud.select"  />`)
- // }   
-  formatter: (cell, row, index) => {
-    let getCloud=cloudNamesDict.find(objet => objet.cloud === row.cells[2].data)
-    return h('input', {
-          type: "checkbox",
-          checked: getCloud.select,
-	   			onChange: () => {
-            aa=false
-            getCloud.select=!getCloud.select
-            //this.checked=cell
-	      		console.log(cloudNamesDict)
-            columnso=columnso
-            //cloudNamesDict=cloudNamesDict
-	  }
-		},)
-  }
-}
-,{
-
-  sort: 1,
-  name: "select", 
-
-  formatter: (cell, row, index) => {
-    return cell.toString()
-  }
-},
-
-,{
-  sort: 1,
-  name: "cloud"}
-]
-      
+     
 
 function log(...args){
   console.log(...args)
@@ -343,13 +291,15 @@ view=alasql(filters,[config])
 //      }
 //    });
   }
+
+
+
+
 </script>
 
 
 
 <div class="p-4 sm:ml-64">
-  <SvelteTable data={cloudNamesDict} />
-  <RevoGrid  resize="true" {columns} theme="material"/>
   <div class="join join-vertical lg:join-horizontal">
     <button class="btn join-item"  onclick="my_modal_4.showModal()" ><span>{@html iconCloud}</span>Select Clouds</button>
     <dialog id="my_modal_4" class="modal">
@@ -359,7 +309,8 @@ view=alasql(filters,[config])
         </form>
         <h3 class="font-bold text-lg">Hello!</h3>
         <p class="py-4">Press ESC key or click on ✕ button to close</p>
-        <Grid  data={cloudNamesDict} columns={columnso} search=true    className={className} pagination={pagination} fixedHeader=true    />
+
+  <CloudsTable data={cloudNamesDict} />
       </div>
     </dialog>
 

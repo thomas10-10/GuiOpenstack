@@ -49,7 +49,13 @@ let aaa=false
     //
   });
   let selectFilter="all";
-  handler.filter(selectFilter, 'select', check.isEqualTo)
+  function filterBySelect(){
+    if (selectFilter == "true" || selectFilter == "false"){
+    handler.filter(selectFilter, 'select', check.isEqualTo)
+    }else{
+    handler.filter('', 'select', check.isEqualTo)
+  }}
+  filterBySelect()
 </script>
 
 <Datatable {handler}>
@@ -79,13 +85,18 @@ let aaa=false
           <tr>
              <!-- <ThFilter {handler} filterBy="select" comparator={check.isEqualTo} class="selection" /> -->
              <th class="text-left">
-              <select
+              <select bind:value={selectFilter}
                on:change={(event) => {
+                    if (event.target.value == "true" || event.target.value == "false"){
+                    handler.filter(event.target.value, 'select', check.isEqualTo)
+                    }else{
+                    handler.filter('', 'select', check.isEqualTo)
+                    }
                         //handler.selectAll({ selectBy: 'cloud' })
                         //selectFilter=false
                         
                         }}
-              class="select select-xs" bind:value={selectFilter}>
+              class="select select-xs">
                 <option selected>all</option>
                 <option>true</option>
                 <option>false</option>
@@ -97,8 +108,8 @@ let aaa=false
       </thead>
       <tbody>
           {#each $rows as row}
-              <tr class:active={$selected.includes(row.cloud)}>
-                  <td class="selection text-left">
+              <tr  class:active={$selected.includes(row.cloud)}>
+                  <td  class="selection text-left">
                       <input
                           type="checkbox"
                           id={row.cloud}
@@ -108,6 +119,7 @@ let aaa=false
                             //document.getElementById(row.cloud).checked=row.select
                             selected.select=!selected.select
                             console.log(data)
+                            filterBySelect()
                             setGeneralCheckbox()
                           }}
                           bind:checked={row.select}
