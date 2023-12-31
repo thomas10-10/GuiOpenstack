@@ -1,5 +1,6 @@
 package main
 
+
 import (
 	"context"
 	"fmt"
@@ -124,6 +125,25 @@ func (a *App) GetCloudNames()  MessageCloudNames{
 
 
 }
+
+func createConfigDir(){
+	var configDirName := "guiOpenstack"
+	dirName := configDirName
+	err := os.Mkdir(filepath.Join(xdg.DataHome, dirName), 0755)
+	if err!=null {
+		fmt.Println("err")
+	}
+}
+
+
+func (a *App) GetContentFile(path) {
+	createConfigDir()
+	cloudsFile := filepath.Join(xdg.DataHome, dirName, "GuiOpenstack.yaml")
+	fmt.Println(cloudsFile)
+
+} 
+
+
 
 
 func getServers(cloudName string)  Message{

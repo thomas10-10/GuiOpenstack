@@ -1,7 +1,7 @@
 <script>
 
   import Sidebar from './Sidebar.svelte';
-  import { iconDebug, iconSettings, iconProjects, iconServers, softIconDebug } from './icons.js';
+  import { iconDebug, iconSettings, iconProjects, softIconServers} from './icons.js';
   import PageProjects from './pages/Projects.svelte';
   import PageServers from './pages/Servers.svelte';
   import PageSettings from './pages/Settings.svelte';
@@ -17,7 +17,7 @@
 
 
   let mainButtons = [{name: "Projects", icon: iconProjects, page: PageProjects },
-  		{name: "Servers", icon: iconServers , page: PageServers },
+  		{name: "Servers", icon: softIconServers , page: PageServers },
 		{name: "Settings", icon: iconSettings , page: PageSettings },
 		{name: "Debug", icon: iconDebug , page: PageDebug }
 		];
@@ -28,7 +28,6 @@
 
 
 ddd
-{@html softIconDebug}
 <Sidebar mainButtons={mainButtons}/>
 
 
